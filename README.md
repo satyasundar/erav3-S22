@@ -5,6 +5,7 @@ This repository contains code for fine-tuning Google's Gemma-3 1B model using GR
 ## Overview
 
 The project implements GRPO training on Gemma-3 1B model with the following key features:
+
 - Fine-tuning on GSM8K dataset for mathematical reasoning
 - Custom reward functions for format matching and answer correctness
 - Structured output format with working out and solution sections
@@ -12,39 +13,7 @@ The project implements GRPO training on Gemma-3 1B model with the following key 
 
 ## Model Outputs before and after GRPO
 
-### Before GRPO
-```
-Q:
-What is the sqrt of 101?
-
-A:
-We can estimate the square root of 101. Since $10^2 = 100$, we know that $\sqrt{101}$ is slightly greater than 10.
-
-We can try $10.05^2 = 101.0025$, so $\sqrt{101} \approx 10.05$.
-
-Another approach is to use the fact that $\sqrt{101} = \sqrt{101}$.
-We can approximate $\sqrt{101}$ using a calculator.
-$\sqrt{101} \approx 10.0498756211$.
-
-The square root of 101 is approximately 10.05.
-However, if we are looking for an exact answer, we can say that $\sqrt{101}$ is not an integer.
-It is known that $\sqrt{101} \approx 10.05$.
-
-Final Answer: The final answer is $\boxed{10.05}$
-```
-
-### After GRPO
-```
-Q:
-What is the sqrt of 101?
-
-A:
-The square root of 101 is approximately 10.05.
-
-Therefore, $\sqrt{101} \approx 10.05$.
-
-Final Answer: The final answer is $\boxed{10.05}$
-```
+![GRPO_result_image_from_HF](GEMMA3_1B_GRPO.png)
 
 ## Requirements
 
@@ -55,6 +24,7 @@ pip install --no-deps git+https://github.com/huggingface/transformers@v4.49.0-Ge
 ```
 
 For Colab users, additional dependencies:
+
 ```bash
 pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft "trl==0.15.2" triton cut_cross_entropy unsloth_zoo
 pip install sentencepiece protobuf datasets huggingface_hub hf_transfer
@@ -63,6 +33,7 @@ pip install sentencepiece protobuf datasets huggingface_hub hf_transfer
 ## Model Setup
 
 The project uses the following configuration:
+
 - Base model: unsloth/gemma-3-1b-it
 - Max sequence length: 1024
 - PEFT configuration with LoRA
@@ -71,6 +42,7 @@ The project uses the following configuration:
 ## Training Configuration
 
 Key training parameters:
+
 - Learning rate: 5e-6
 - Optimizer: AdamW (fused)
 - Batch size: 1
@@ -82,6 +54,7 @@ Key training parameters:
 ## Reward Functions
 
 The training uses multiple reward functions:
+
 1. `match_format_exactly`: Checks for exact format matching
 2. `match_format_approximately`: Evaluates approximate format matching
 3. `check_answer`: Validates answer correctness
@@ -90,6 +63,7 @@ The training uses multiple reward functions:
 ## Output Format
 
 The model is trained to produce responses in the following format:
+
 ```
 <start_working_out>
 [Reasoning steps]
@@ -102,12 +76,14 @@ The model is trained to produce responses in the following format:
 ## Usage
 
 1. Login to Hugging Face:
+
 ```python
 from huggingface_hub import notebook_login
 notebook_login()
 ```
 
 2. Load and prepare the model:
+
 ```python
 from unsloth import FastModel
 model, tokenizer = FastModel.from_pretrained(
@@ -120,6 +96,7 @@ model, tokenizer = FastModel.from_pretrained(
 ```
 
 3. Configure PEFT:
+
 ```python
 model = FastModel.get_peft_model(
     model,
@@ -134,6 +111,7 @@ model = FastModel.get_peft_model(
 ```
 
 4. Train the model:
+
 ```python
 from trl import GRPOConfig, GRPOTrainer
 trainer = GRPOTrainer(
@@ -154,6 +132,7 @@ trainer.train()
 ## Inference
 
 To use the trained model for inference:
+
 ```python
 messages = [
     {"role": "system", "content": system_prompt},
